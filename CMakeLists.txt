@@ -21,6 +21,7 @@ add_executable(cloud_controller ${SOURCES})
 
 target_include_directories(cloud_controller PRIVATE
     include
+    ${nlohmann_json_SOURCE_DIR}/single_include
     ${SDL2_INCLUDE_DIRS}
 )
 
