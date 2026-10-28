@@ -13,9 +13,9 @@ file(GLOB SOURCES "src/*.cpp")
 
 add_executable(cloud_controller ${SOURCES})
 
-# Explicitly add local include directory so nlohmann/json.hpp is found instantly
+# Explicitly use absolute path to include directory so the compiler finds nlohmann/json.hpp
 target_include_directories(cloud_controller PRIVATE
-    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${SDL2_INCLUDE_DIRS}
 )
 
