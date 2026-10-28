@@ -11,16 +11,25 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup ARM64 Multiarch & Jammy Dependencies
+      - name: Configure Multiarch Sources with Architecture Gating
         run: |
+          # 1. Force main/security/updates archives to ONLY look for amd64 (prevents 404s on foreign arch)
+          sudo tee /etc/apt/sources.list << 'EOF'
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy main universe restricted multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-updates main universe restricted multiverse
+          deb [arch=amd64] http://security.ubuntu.com/ubuntu/ jammy-security main universe restricted multiverse
+          EOF
+
+          # 2. Add foreign architecture support
           sudo dpkg --add-architecture arm64
-          
-          # Force arm64 requests to official Jammy ports repository
+
+          # 3. Direct arm64 requests strictly to the official ports mirror
           sudo tee /etc/apt/sources.list.d/armports.list << 'EOF'
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main universe restricted multiverse
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main universe restricted multiverse
           EOF
 
+          # 4. Update cleanly and install cross-compilation toolchain & dependencies
           sudo apt-get update
           sudo apt-get install -y \
             g++-aarch64-linux-gnu \
