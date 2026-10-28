@@ -13,7 +13,7 @@ jobs:
 
       - name: Configure Multiarch Sources with Architecture Gating
         run: |
-          # 1. Force main/security/updates archives to ONLY look for amd64 (prevents 404s on foreign arch)
+          # 1. Force main/security/updates archives to ONLY look for amd64
           sudo tee /etc/apt/sources.list << 'EOF'
           deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy main universe restricted multiverse
           deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-updates main universe restricted multiverse
@@ -39,7 +39,13 @@ jobs:
             libasound2-dev:arm64 \
             libsdl2-dev:arm64 \
             libsdl2-ttf-dev:arm64
-
+      - name: Debug Verify Vendored Header
+        run: |
+          echo "Checking repository structure..."
+          ls -lh include/nlohmann/json.hpp
+          
+          echo "Checking if CMakeLists.txt includes 'include' directory..."
+          grep -n "include" CMakeLists.txt
       - name: Configure CMake for Cross-Compilation
         run: |
           mkdir build && cd build
