@@ -4,11 +4,19 @@ project(cloud_controller CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Automatically fetch nlohmann/json (header-only) during CMake configuration
+include(FetchContent)
+FetchContent_Declare(
+    nlohmann_json
+    URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
 # Find necessary system packages
 find_package(SDL2 REQUIRED)
 find_package(Threads REQUIRED)
 
-# Collect source files (adjust if you add more .cpp files in src/)
+# Collect source files
 file(GLOB SOURCES "src/*.cpp")
 
 # Define the executable target
@@ -20,9 +28,10 @@ target_include_directories(cloud_controller PRIVATE
     ${SDL2_INCLUDE_DIRS}
 )
 
-# Link required libraries (ALSA for MIDI/Audio, SDL2 for window/input, Threads)
+# Link required libraries and nlohmann_json target
 target_link_libraries(cloud_controller PRIVATE
     ${SDL2_LIBRARIES}
     asound
     Threads::Threads
+    nlohmann_json::nlohmann_json
 )
