@@ -1,0 +1,53 @@
+name: Build Cloud Controller RG40XXV Port
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup ARM64 Multiarch & Dependencies
+        run: |
+          sudo dpkg --add-architecture arm64
+          sudo apt-get update
+          sudo apt-get install -y \
+            g++-aarch64-linux-gnu \
+            cmake \
+            make \
+            libasound2-dev:arm64 \
+            libsdl2-dev:arm64 \
+            libsdl2-ttf-dev:arm64
+
+      - name: Configure CMake for Cross-Compilation
+        run: |
+          mkdir build && cd build
+          cmake .. \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+            -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+            -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
+            -DCMAKE_FIND_ROOT_PATH=/usr/aarch64-linux-gnu \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+
+      - name: Build Executable
+        run: cmake --build build -j4
+
+      - name: Package Knulli Port Artifact
+        run: |
+          mkdir -p dist/cloud_controller
+          cp build/cloud_controller dist/cloud_controller/
+          if [ -d "package" ]; then cp -r package/* dist/cloud_controller/; fi
+          cd dist && zip -r cloud_controller_knulli_port.zip cloud_controller
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-controller-rg40xxv-port
+          path: dist/cloud_controller_knulli_port.zip
