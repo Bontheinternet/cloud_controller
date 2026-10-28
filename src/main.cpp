@@ -4,6 +4,17 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include <chrono> // <-- Added to fix chrono compilation
+
+#include "AudioEngine.hpp"
+#include "ALSAMIDIManager.hpp"
+#include "FilePicker.hpp"
+#include "PresetManager.hpp"#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <iostream>
+#include <vector>
+#include <thread>
+#include <atomic>
 
 #include "AudioEngine.hpp"
 #include "ALSAMIDIManager.hpp"

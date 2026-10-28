@@ -4,7 +4,7 @@ project(cloud_controller CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Automatically fetch nlohmann/json header-only library during configuration
+# Automatically fetch nlohmann/json header-only library
 include(FetchContent)
 FetchContent_Declare(
     nlohmann_json
@@ -13,17 +13,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-# Find system libraries
 find_package(SDL2 REQUIRED)
 find_package(Threads REQUIRED)
 
-# Collect source files
 file(GLOB SOURCES "src/*.cpp")
 
-# Define executable target
 add_executable(cloud_controller ${SOURCES})
 
-# Include directories
 target_include_directories(cloud_controller PRIVATE
     include
     ${SDL2_INCLUDE_DIRS}
