@@ -6,41 +6,26 @@ on:
 
 jobs:
   build-arm64:
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:22.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Configure Clean Jammy and Multiarch Sources
+      - name: Setup ARM64 Multiarch & Jammy Dependencies
         run: |
-          export DEBIAN_FRONTEND=noninteractive
+          sudo dpkg --add-architecture arm64
           
-          # Clean out any default sources that might inject noble
-          rm -rf /etc/apt/sources.list.d/*
-          
-          # Set explicit Jammy (22.04) amd64 source
-          echo "deb http://archive.ubuntu.com/ubuntu/ jammy main universe restricted multiverse" > /etc/apt/sources.list
-          echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates main universe restricted multiverse" >> /etc/apt/sources.list
-          echo "deb http://security.ubuntu.com/ubuntu/ jammy-security main universe restricted multiverse" >> /etc/apt/sources.list
+          # Force arm64 requests to official Jammy ports repository
+          sudo tee /etc/apt/sources.list.d/armports.list << 'EOF'
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main universe restricted multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main universe restricted multiverse
+          EOF
 
-          # Enable arm64 architecture
-          dpkg --add-architecture arm64
-
-          # Route arm64 requests strictly to ports.ubuntu.com for Jammy
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main universe restricted multiverse" > /etc/apt/sources.list.d/armports.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main universe restricted multiverse" >> /etc/apt/sources.list.d/armports.list
-
-          # Update and install dependencies cleanly
-          apt-get update
-          apt-get install -y \
-            software-properties-common \
-            wget \
-            git \
+          sudo apt-get update
+          sudo apt-get install -y \
+            g++-aarch64-linux-gnu \
             cmake \
             make \
-            g++-aarch64-linux-gnu \
             libasound2-dev:arm64 \
             libsdl2-dev:arm64 \
             libsdl2-ttf-dev:arm64
